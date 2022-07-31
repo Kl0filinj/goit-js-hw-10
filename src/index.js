@@ -11,6 +11,8 @@ const refs = {
 };
 
 function countrySearching() {
+  refs.countryInfo.innerHTML = '';
+  refs.countryList.innerHTML = '';
   const countryName = refs.input.value.trim();
   if (countryName === '') {
     return;
@@ -18,7 +20,6 @@ function countrySearching() {
   //   console.log(countryName);
   fetchCountries(countryName)
     .then(data => {
-      refs.countryList.innerHTML = '';
       if (data.length >= 10) {
         Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
@@ -27,6 +28,11 @@ function countrySearching() {
         refs.countryList.insertAdjacentHTML(
           'afterbegin',
           buildListOfCountries(data)
+        );
+      } else if (data.length === 1) {
+        refs.countryInfo.insertAdjacentHTML(
+          'afterbegin',
+          buildCountrySelfCard(data)
         );
       }
     })
@@ -39,8 +45,38 @@ function buildListOfCountries(countries) {
   const markup = countries
     .map(
       country => `<li class="country-item">
-        <span><img class="flag-icon" width='25px' height='15' src='${country.flags.svg}'></img>${country.name.official}</span>
+        <span class='country-item__name'><img class="flag-icon" width='30px' height='20' src='${country.flags.svg}'></img>${country.name.common}</span>
       </li>`
+    )
+    .join('');
+  return markup;
+}
+
+function buildCountrySelfCard(countries) {
+  const markup = countries
+    .map(
+      country => `<div>
+        <span class="country-head"><img class='flag-icon__self' src="${
+          country.flags.svg
+        }" alt="" width='45' height='25'>${country.name.common}</span>
+        <ul>
+          <li class="country-item">
+            <span class='country-item__name'><b>Capital: </b>${
+              country.capital
+            }</span>
+          </li>
+          <li class="country-item">
+            <span class='country-item__name'><b>Population : </b>${
+              country.population
+            }</span>
+          </li>
+          <li class="country-item">
+            <span class='country-item__name'><b>Languages: </b>${Object.values(
+              country.languages
+            )}</span>
+          </li>
+        </ul>
+      </div>`
     )
     .join('');
   return markup;
